@@ -8,10 +8,10 @@ export interface User {
   lastName: string;
   email: string;
   role: UserRole;
-  level?: string; // For Students (e.g., B2, C1)
-  children?: string[]; // For Parents (e.g., ["Hiro Pendelton", "Elena Pendelton"])
-  classrooms?: string[]; // For Lecturers
-  schoolName?: string; // For School Admins
+  level?: string;
+  children?: string[];
+  classrooms?: string[];
+  schoolName?: string;
 }
 
 export type ActivePage = 'landing' | 'login' | 'register' | 'dashboard';
@@ -23,6 +23,7 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, role: UserRole, password?: string) => Promise<boolean>;
   signUp: (email: string, role: UserRole, firstName: string, lastName: string, password?: string) => Promise<boolean>;
+  loginDemo: (role: UserRole) => void;
   logout: () => void;
   navigateTo: (page: ActivePage) => void;
 }
@@ -47,7 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Real backend login handler
   const login = async (email: string, role: UserRole, password?: string): Promise<boolean> => {
     setIsLoading(true);
     try {
@@ -58,11 +58,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Authentication failed');
+        let errorMessage = 'Authentication failed';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const errorText = await response.text();
+            if (errorText.includes('Database server is unreachable') || errorText.includes('DATABASE_UNREACHABLE')) {
+              errorMessage = 'Database server is unreachable. Please verify that the database server is running and firewall permissions allow connection.';
+            } else {
+              errorMessage = `Server returned error ${response.status}: ${response.statusText}`;
+            }
+          }
+        } catch {
+          errorMessage = `Server returned status code ${response.status}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error('Server returned an invalid JSON response.');
+      }
       
       setUser(data.user);
       setToken(data.token);
@@ -78,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Real backend registration handler
   const signUp = async (
     email: string,
     role: UserRole,
@@ -95,11 +115,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const errorText = await response.text();
+            if (errorText.includes('Database server is unreachable') || errorText.includes('DATABASE_UNREACHABLE')) {
+              errorMessage = 'Database server is unreachable. Please verify that the database server is running and firewall permissions allow connection.';
+            } else {
+              errorMessage = `Server returned error ${response.status}: ${response.statusText}`;
+            }
+          }
+        } catch {
+          errorMessage = `Server returned status code ${response.status}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error('Server returned an invalid JSON response.');
+      }
 
       setUser(data.user);
       setToken(data.token);
@@ -113,6 +154,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Sign up error:', error);
       throw error;
     }
+  };
+
+  const loginDemo = (role: UserRole) => {
+    const demoUser: User = {
+      id: 'demo-user-id',
+      firstName: 'Demo',
+      lastName: role.replace('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+      email: `demo.${role.toLowerCase()}@skillfull.com`,
+      role: role,
+      level: role === 'STUDENT' ? 'B2' : undefined,
+      children: role === 'PARENT' ? ['Hiro Pendelton', 'Elena Pendelton'] : undefined,
+      classrooms: role === 'LECTURER' ? ['Advanced English B2 (Room 401)', 'Business Communication (Room 102)'] : undefined,
+      schoolName: role === 'SCHOOL_ADMIN' ? 'San Francisco Global Academy' : undefined,
+    };
+    setUser(demoUser);
+    setToken('demo-jwt-token');
+    localStorage.setItem('skillfull_user', JSON.stringify(demoUser));
+    localStorage.setItem('skillfull_token', 'demo-jwt-token');
+    setActivePage('dashboard');
   };
 
   const logout = () => {
@@ -137,6 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         login,
         signUp,
+        loginDemo,
         logout,
         navigateTo,
       }}

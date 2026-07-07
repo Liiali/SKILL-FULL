@@ -34,7 +34,7 @@ model StudentProfile {
   id        String   @id @default(uuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  grade     String?
+  grade     String?  @default("A1")
   streak    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,7 +52,27 @@ model LecturerProfile {
   id         String   @id @default(uuid())
   userId     String   @unique
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  department String?
+  department String?  @default("English & Communications")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Classroom {
+  id           String   @id @default(uuid())
+  name         String
+  room         String
+  studentCount Int      @default(0)
+  averageScore Float    @default(80.0)
+  createdAt    DateTime @default(now())
+}
+
+model FeedbackLog {
+  id           String   @id @default(uuid())
+  studentName  String
+  category     String
+  feedbackText String
+  status       String   @default("PENDING") // PENDING, APPROVED, COMPLETED
+  authorName   String
+  authorRole   String
+  createdAt    DateTime @default(now())
 }

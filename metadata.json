@@ -1,6 +1,6 @@
 {
   "name": "Skill Full",
-  "description": "A prestigious, world-class English learning ecosystem from Beginner to Advanced across 6 distinct CEFR levels (A1 to C2) designed for student transformation.",
+  "description": "Full-stack educational platform with 5 academic roles and PostgreSQL integration",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

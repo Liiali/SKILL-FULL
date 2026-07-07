@@ -1,231 +1,162 @@
-import { useState, FormEvent } from 'react';
-import { motion } from 'motion/react';
-import { Award, BookOpen, CheckCircle2, RefreshCw, Users, ShieldCheck, HelpCircle, BarChart2, PlusCircle, ArrowRight, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { initialClassrooms, initialStudents, Classroom } from '../../data';
+import { Award, BookOpen, Plus, TrendingUp, Users, Settings, ShieldCheck } from 'lucide-react';
 
-export default function SchoolAdminPortal({ userName, schoolName }: { userName: string; schoolName?: string }) {
-  const [classes, setClasses] = useState([
-    { name: 'Advanced Academic Writing (C1)', teacher: 'Dr. Sarah Adams', studentsCount: 18, efficiency: '98%' },
-    { name: 'Essential Foundational Conversational (A2)', teacher: 'Prof. Paul Sterling', studentsCount: 14, efficiency: '91%' },
-    { name: 'Linguistic Inversions Syntax (B2)', teacher: 'Dr. Sarah Adams', studentsCount: 22, efficiency: '95%' },
-    { name: 'Business Phonetic Intonation (B1)', teacher: 'Prof. Paul Sterling', studentsCount: 11, efficiency: '94%' },
-  ]);
+export default function SchoolAdminPortal() {
+  const [classrooms, setClassrooms] = useState<Classroom[]>(initialClassrooms);
+  const [activeCurriculumTab, setActiveCurriculumTab] = useState<'CEFR' | 'STAFF' | 'REPORTS'>('CEFR');
 
-  const [newClassName, setNewClassName] = useState('');
-  const [newTeacher, setNewTeacher] = useState('Dr. Sarah Adams');
-  const [newCount, setNewCount] = useState('15');
-  const [showAddForm, setShowAddForm] = useState(false);
-
-  const handleAddClass = (e: FormEvent) => {
-    e.preventDefault();
-    if (!newClassName) {
-      alert('Please provide a class name.');
-      return;
-    }
-
-    const newClassObj = {
-      name: newClassName,
-      teacher: newTeacher,
-      studentsCount: parseInt(newCount) || 10,
-      efficiency: '100%',
-    };
-
-    setClasses((prev) => [newClassObj, ...prev]);
-    setNewClassName('');
-    setShowAddForm(false);
-  };
-
-  const handleDeleteClass = (idxToDelete: number) => {
-    setClasses((prev) => prev.filter((_, idx) => idx !== idxToDelete));
-  };
+  const cefrTracks = [
+    { code: 'A1-A2', title: 'CEFR Foundation', desc: 'Basic vocabulary, simple phrases, and sound recognition tracks', courses: 4, activeStudents: 55 },
+    { code: 'B1-B2', title: 'Immersive Intermediate', desc: 'Fluency drills, business speaking scenarios, and intermediate listening tracks', courses: 8, activeStudents: 120 },
+    { code: 'C1-C2', title: 'Mastery & Executive Speech', desc: 'Advanced rhetoric, native expression, idiomatic registers', courses: 6, activeStudents: 42 },
+  ];
 
   return (
-    <div className="space-y-6" id="school-admin-portal-container">
-      {/* Top Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
-        <div className="text-left z-10">
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest font-mono">School Administrator Console</span>
-          <h2 className="text-2xl font-black font-display text-slate-900 mt-0.5">{schoolName || 'Skill Full Campus Office'}</h2>
-          <p className="text-xs text-slate-500 font-light mt-1">Hello, Administrator {userName}. Review metrics, teacher enrollment catalogs, and classroom logs.</p>
-        </div>
-
-        <div className="flex gap-2 shrink-0 z-10">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-150 rounded-xl text-[10px] font-bold font-mono uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4" /> SECURED PROTOCOL
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Statistics Metric Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4" id="school-admin-metrics">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm text-left">
-          <span className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono">Total Student Enrollment</span>
-          <span className="block text-2xl font-black text-slate-900 mt-1 font-mono">842 Students</span>
-          <span className="text-[10px] text-emerald-600 font-semibold font-mono mt-1 block">▲ +12% this semester</span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm text-left">
-          <span className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono">Active Lecturers</span>
-          <span className="block text-2xl font-black text-indigo-600 mt-1 font-mono">24 Mentors</span>
-          <span className="text-[10px] text-slate-400 font-medium mt-1 block">Full Faculty Capacity</span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm text-left">
-          <span className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono">Class Log registries</span>
-          <span className="block text-2xl font-black text-slate-900 mt-1 font-mono">{classes.length} Rooms</span>
-          <span className="text-[10px] text-slate-400 font-medium mt-1 block">CEFR-audited rooms</span>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm text-left">
-          <span className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono">Faculty Efficiency Rating</span>
-          <span className="block text-2xl font-black text-emerald-600 mt-1 font-mono">94.8%</span>
-          <span className="text-[10px] text-emerald-600 font-semibold font-mono mt-1 block">Top 1% Global rating</span>
+    <div className="space-y-8" id="school-admin-workspace">
+      {/* Header */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-md p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            School Admin Workspace
+          </span>
+          <h1 className="text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
+            Academic Operations & Curriculums
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Configure learning pathways, analyze grade distributions, and evaluate institutional benchmarks.
+          </p>
         </div>
       </div>
 
-      {/* Main Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left Column: Class Management Catalog */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 pb-3 border-b border-slate-100 gap-3">
-              <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-indigo-600" />
-                <h3 className="font-black font-display text-sm text-slate-900">Interactive School Classroom Logs</h3>
-              </div>
+      {/* Ratios Metrics Rows */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-kpis">
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 flex items-center gap-5 shadow-sm">
+          <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Active Students</span>
+            <h3 className="text-2xl font-black text-slate-800 mt-0.5">{initialStudents.length + 42}</h3>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 flex items-center gap-5 shadow-sm">
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Managed Classrooms</span>
+            <h3 className="text-2xl font-black text-slate-800 mt-0.5">{classrooms.length}</h3>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 flex items-center gap-5 shadow-sm">
+          <div className="p-4 rounded-2xl bg-violet-50 border border-violet-100 text-violet-600">
+            <Award className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Average CEFR Score</span>
+            <h3 className="text-2xl font-black text-violet-600 mt-0.5">86.4%</h3>
+          </div>
+        </div>
+      </div>
+
+      {/* Main layout tabs */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden" id="curriculum-tabs-container">
+        <div className="border-b border-slate-100 px-6 py-4 bg-slate-50/50 flex items-center justify-between">
+          <div className="flex gap-4">
+            {(['CEFR', 'STAFF', 'REPORTS'] as const).map((tab) => (
               <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+                key={tab}
+                onClick={() => setActiveCurriculumTab(tab)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeCurriculumTab === tab
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
               >
-                <PlusCircle className="w-4 h-4" /> Add Classroom
+                {tab === 'CEFR' ? 'CEFR Curriculums' : tab === 'STAFF' ? 'Lecturer Profiles' : 'Performance Audits'}
               </button>
-            </div>
-
-            {/* Quick Add Form Expanded inside card */}
-            {showAddForm && (
-              <motion.form
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="p-4 bg-slate-50 border border-slate-200 rounded-2xl mb-5 space-y-3"
-                onSubmit={handleAddClass}
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono mb-1">Class Title (e.g. TOEFL prep)</label>
-                    <input
-                      type="text"
-                      value={newClassName}
-                      onChange={(e) => setNewClassName(e.target.value)}
-                      placeholder="e.g. Conversational A1"
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono mb-1">Academic Mentor</label>
-                    <select
-                      value={newTeacher}
-                      onChange={(e) => setNewTeacher(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold cursor-pointer focus:outline-none"
-                    >
-                      <option value="Dr. Sarah Adams">Dr. Sarah Adams</option>
-                      <option value="Prof. Paul Sterling">Prof. Paul Sterling</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[8px] font-black text-slate-400 uppercase tracking-wider font-mono mb-1">Target Seat limit</label>
-                    <input
-                      type="number"
-                      value={newCount}
-                      onChange={(e) => setNewCount(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-2 justify-end pt-1">
-                  <button type="submit" className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] uppercase rounded-lg shadow-sm">
-                    Confirm Registry
-                  </button>
-                  <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1.5 border border-slate-200 text-slate-600 font-semibold text-[10px] uppercase rounded-lg hover:bg-slate-100">
-                    Cancel
-                  </button>
-                </div>
-              </motion.form>
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs" id="school-classes-table">
-                <thead>
-                  <tr className="border-b border-slate-100 font-mono text-slate-400 text-[9px] uppercase font-black">
-                    <th className="pb-3 font-semibold">Classroom Name</th>
-                    <th className="pb-3 font-semibold">Faculty Lead</th>
-                    <th className="pb-3 font-semibold">Active Seats</th>
-                    <th className="pb-3 font-semibold">Syllabus Progress</th>
-                    <th className="pb-3 text-right font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {classes.map((cls, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50 transition-all">
-                      <td className="py-3.5 font-bold text-slate-800">{cls.name}</td>
-                      <td className="py-3.5 font-semibold text-slate-650">{cls.teacher}</td>
-                      <td className="py-3.5 font-mono text-slate-700">{cls.studentsCount} Students</td>
-                      <td className="py-3.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-600 rounded-full" style={{ width: cls.efficiency }} />
-                          </div>
-                          <span className="font-mono text-[10px] font-bold text-slate-600">{cls.efficiency}</span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 text-right">
-                        <button
-                          onClick={() => handleDeleteClass(idx)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Classroom Log"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            ))}
           </div>
+          <button className="p-2 rounded-xl text-slate-400 hover:text-slate-600 cursor-pointer">
+            <Settings className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Right Column: Administration Bulletins */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm text-left">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-              <BookOpen className="w-5 h-5 text-indigo-600" />
-              <h3 className="font-black font-display text-sm text-slate-900">Linguistic Directives</h3>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
-                <span className="text-[8px] font-bold text-indigo-600 font-mono uppercase">CEFR Compliance audit</span>
-                <h4 className="text-xs font-bold text-slate-800 mt-0.5">Linguistic Intonation updates</h4>
-                <p className="text-[11px] text-slate-500 font-light mt-1">Please notify all lecturers that the new phonetic oral standards have been aligned to the July 2026 guidelines.</p>
+        <div className="p-6 md:p-8">
+          {activeCurriculumTab === 'CEFR' && (
+            <div className="space-y-6" id="cefr-curriculum-list">
+              <h3 className="font-extrabold text-lg text-slate-800 tracking-tight">Standard English Pathways</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {cefrTracks.map((track) => (
+                  <div key={track.code} className="border border-slate-200/70 rounded-2xl p-6 hover:border-slate-300 transition-all">
+                    <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-600 text-[10px] font-bold">
+                      {track.code}
+                    </span>
+                    <h4 className="font-bold text-slate-800 text-base mt-3">{track.title}</h4>
+                    <p className="text-slate-500 text-xs mt-1 leading-relaxed">{track.desc}</p>
+                    <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-slate-100 text-xs">
+                      <div>
+                        <span className="text-slate-400 font-medium">Courses</span>
+                        <span className="font-bold text-slate-800 block mt-0.5">{track.courses} Units</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium">Enrolled</span>
+                        <span className="font-bold text-indigo-600 block mt-0.5">{track.activeStudents} Active</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
-                <span className="text-[8px] font-bold text-emerald-600 font-mono uppercase">Enrollment targets met</span>
-                <h4 className="text-xs font-bold text-slate-800 mt-0.5">C1 Student quotas completed</h4>
-                <p className="text-[11px] text-slate-500 font-light mt-1">Our secondary campus registries have registered over 140 students in advanced C1 courses, a new academic benchmark.</p>
-              </div>
-
-              <button className="w-full py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
-                Issue Faculty Memo
-              </button>
             </div>
-          </div>
+          )}
+
+          {activeCurriculumTab === 'STAFF' && (
+            <div className="space-y-4" id="staff-roster-list">
+              <h3 className="font-extrabold text-lg text-slate-800 tracking-tight">Registered Academic Lecturers</h3>
+              <div className="border border-slate-200/60 rounded-2xl overflow-hidden divide-y divide-slate-100">
+                {[
+                  { name: 'Dr. Sarah Jameson', dept: 'English Rhetoric', email: 'sarah.j@school.edu', status: 'ACTIVE' },
+                  { name: 'Prof. Lucas Vance', dept: 'CEFR Assessments', email: 'l.vance@school.edu', status: 'ACTIVE' },
+                  { name: 'Emily Thorne', dept: 'Phonetics & Accent', email: 'e.thorne@school.edu', status: 'ON_LEAVE' },
+                ].map((lecturer) => (
+                  <div key={lecturer.email} className="p-4 sm:flex items-center justify-between gap-4 bg-white hover:bg-slate-50/50 transition-all">
+                    <div>
+                      <span className="font-bold text-slate-800 text-sm block">{lecturer.name}</span>
+                      <span className="text-xs text-slate-400 block">{lecturer.dept}</span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-2 sm:mt-0 text-xs">
+                      <span className="text-slate-500">{lecturer.email}</span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                        lecturer.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                        {lecturer.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeCurriculumTab === 'REPORTS' && (
+            <div className="space-y-4" id="performance-audits">
+              <h3 className="font-extrabold text-lg text-slate-800 tracking-tight">Institutional Audit Logs</h3>
+              <div className="p-6 rounded-2xl border border-indigo-100 bg-indigo-50/20 text-slate-600 text-xs space-y-2">
+                <p className="flex items-center gap-2 text-indigo-900 font-bold">
+                  <TrendingUp className="w-4 h-4 text-indigo-600" />
+                  Grade Average Increased By +4.2% This Quarter
+                </p>
+                <p className="leading-relaxed text-slate-500">
+                  Student speaking streak averages have expanded to 14 consecutive study days. Institutional engagement rates are exceptionally strong in Intermediate level classrooms.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-
       </div>
     </div>
   );
